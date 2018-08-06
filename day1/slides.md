@@ -652,3 +652,55 @@ template:blue
 				fmt.Print(conversion)
 			}
 		```
+
+---
+template:blue
+
+# Let's do it
+
+### Outline
+1. Add a `validate` function that accepts one argument- the user's name as a `string`, and that returns one value, an error.
+2. Check if the name exactly matches yours; if it _doesn't_, return an error (created using `errors.New`) describing the problem in English. (If the name _does_ match, return `nil` to indicate "no error")
+3. In your `main` function, call validate after the user provides their name, and print the error message instead of a greeting, if the error is not nil.
+
+### New Syntax
+
+For an `if` statement, you can declare a variable and check its value at the
+same time by separating these two statement with a semi-colon, like this:
+
+```go
+if intValue := someFunction(); intValue != 1 {
+   // `intValue` can be used here
+}
+
+// `intValue` does not exist outside the `if`
+```
+
+---
+template:blue
+
+# Solution
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func validate(name string) error {
+  if name != "patrick" { return errors.New("you are not Patrick!"); }
+  return nil
+}
+
+func main() {
+	var name string
+	fmt.Print(“What is your name? “)
+	fmt.Scanln(&name)
+	if err := validate(name); err != nil {
+	  fmt.Println("Uh, oh:", err)
+  } else {
+    fmt.Println("Hello,", name, “!”)
+	}
+}
+```
