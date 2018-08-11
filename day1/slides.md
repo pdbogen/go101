@@ -281,7 +281,7 @@ template:blue
 
 ### Import Path:
 ```
-github.com/USERNAME/go101/hello
+slack-github.com/USERNAME/go101.git/hello
 ```
 
 ### Package Name:
@@ -295,12 +295,12 @@ template:blue
 
 ## Do this: make the directory
 ```
-$ mkdir -p $HOME/go/src/github.com/USERNAME/go101/hello
+$ mkdir -p $HOME/go/src/slack-github.com/USERNAME/go101.git/hello
 ```
 
 ## Do this: add some source code
 
-#### Create `$HOME/go/src/github.com/USERNAME/go101/hello/hello.go` with your favorite editor.
+#### Create `$HOME/go/src/slack-github.com/USERNAME/go101.git/hello/hello.go` with your favorite editor.
 
 #### Fill it with:
 
@@ -324,8 +324,8 @@ template:blue
 ## Do this: build a binary
 
 ```
-$ go build -v -o $HOME/hello github.com/USERNAME/go101/hello
-github.com/pdbogen/go101/hello
+$ go build -v -o $HOME/hello slack-github.com/USERNAME/go101.git/hello
+slack-github.com/pdbogen/go101.git/hello
 ```
 
 #### Without `-o $HOME/hello`, the binary will be built in your current directory.
@@ -343,7 +343,7 @@ template:blue
 
 ## Do this: Create a GitHub repo for your new package
 
-### 1. Visit `https://github.com` and login
+### 1. Visit `https://slack-github.com` and login
 ### 2. Click on the `+` next to your image in the top-right
 ### 3. Select "New repository" and name it `go101`. (Do not initialize it with a README)
 
@@ -353,11 +353,11 @@ template:blue
 ## Do this: Initialize and Push your new package
 
 ```
-cd $HOME/go/src/github.com/USERNAME/go101
+cd $HOME/go/src/slack-github.com/USERNAME/go101.git
 git init
 git add hello
 git commit -m "hello, world"
-git remote add upstream git@github.com:USERNAME/go101.git
+git remote add upstream git@slack-github.com:USERNAME/go101.git
 git push --set-upstream upstream master
 ```
 
@@ -481,7 +481,7 @@ someString := "init"       fmt.Println("hi,", someStr)
 
 Run your Code
 ----------------------------------------------------------------------
-go run $HOME/go/src/github.com/USERNAME/go101/hello/hello.go
+go run $HOME/go/src/slack-github.com/USERNAME/go101.git/hello/hello.go
 ```
 
 ---
@@ -689,8 +689,8 @@ import (
 )
 
 func validate(name string) error {
-  if name != "patrick" { return errors.New("you are not Patrick!"); }
-  return nil
+	if name != "patrick" { return errors.New("you are not Patrick!"); }
+	return nil
 }
 
 func main() {
@@ -698,9 +698,9 @@ func main() {
 	fmt.Print(“What is your name? “)
 	fmt.Scanln(&name)
 	if err := validate(name); err != nil {
-	  fmt.Println("Uh, oh:", err)
-  } else {
-    fmt.Println("Hello,", name, “!”)
+		fmt.Println("Uh, oh:", err)
+	} else {
+		fmt.Println("Hello,", name, “!”)
 	}
 }
 ```
