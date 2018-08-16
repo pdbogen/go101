@@ -192,21 +192,21 @@ template:blue
 
 --
 * Any time you call something that returns an `error`
-	* Add some context with `fmt.Errorf`:
-		```
-			func convert(foo string) (string, error) {
-				var bar, err = doSomething(foo)
-				if err != nil {
-					return "", fmt.Errorf("converting %s: %s", foo, err)
-				}
-				return bar, nil
-			}
-			func main() {
-				conversion, err := convert(os.Args[1])
-				if err != nil { panic(err) }
-				fmt.Print(conversion)
-			}
-		```
+	* Add some context with `fmt.Errorf`
+```
+	func convert(foo string) (string, error) {
+		var bar, err = doSomething(foo)
+		if err != nil {
+			return "", fmt.Errorf("converting %s: %s", foo, err)
+		}
+		return bar, nil
+	}
+	func main() {
+		conversion, err := convert(os.Args[1])
+		if err != nil { panic(err) }
+		fmt.Print(conversion)
+	}
+```
 
 ---
 template:blue
@@ -214,7 +214,7 @@ template:blue
 # Let's do it
 
 ### Outline
-1. Add a `validate` function that accepts one argument- the user's name as a `string`, and that returns one value, an error.
+1. Add a `validate` function that accepts one argument- the user's name as a `string`, and that returns one value, an `error`.
 2. Check if the name exactly matches yours; if it _doesn't_, return an error (created using `errors.New`) describing the problem in English. (If the name _does_ match, return `nil` to indicate "no error")
 3. In your `main` function, call validate after the user provides their name, and print the error message instead of a greeting, if the error is not nil.
 
