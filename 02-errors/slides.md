@@ -79,7 +79,7 @@ template:blue
 * And `Must…` functions
   * `Must…` functions are wrappers around functions that return `error` that instead panic when the wrapped function would error.
   * i.e., `regexp.Compile` and `regexp.MustCompile`
-  * If a _static_ regular exprssion string is compiled and it has a syntax error, program probably can't continue; so `regexp.MustCompile` can be used to simply panic.
+  * If a _static_ regular expression string is compiled and it has a syntax error, program probably can't continue; so `regexp.MustCompile` can be used to simply panic.
     * You can do this at global scope, so the program discloses this error and exits immediately on startup.
 
 ---
@@ -214,7 +214,7 @@ if err := maybeFunction(); err != nil {
 
 // neither `intValue` nor `err` exist here, outside the `if`
 
-select option := someOption; option {
+switch option := someOption; option {
   case "a": …
   case "b": …
   default: …
@@ -249,7 +249,7 @@ import (
 )
 
 func validate(name string) error {
-  if name != "patrick" { return errors.New("you are not Patrick!"); }
+  if name != "patrick" { return errors.New("you are not Patrick!") }
   return nil
 }
 
