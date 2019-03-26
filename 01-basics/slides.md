@@ -495,8 +495,8 @@ import (
 
 func main() {
 	var name string
-	fmt.Print(“What is your name? “)
+	fmt.Print("What is your name? ")
 	fmt.Scanln(&name)
-	fmt.Println("Hello,", name, “!”)
+	fmt.Println("Hello,", name, "!")
 }
 ```

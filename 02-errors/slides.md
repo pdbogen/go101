@@ -77,40 +77,44 @@ template:blue
 
 --
 * And `Must…` functions
-	* `Must…` functions are wrappers around functions that return `error` that instead panic when the wrapped function would error.
-	* i.e., `regexp.Compile` and `regexp.MustCompile`
-	* If a _static_ regular exprssion string is compiled and it has a syntax error, program probably can't continue; so `regexp.MustCompile` can be used to simply panic.
-		* You can do this at global scope, so the program discloses this error and exits immediately on startup.
+  * `Must…` functions are wrappers around functions that return `error` that instead panic when the wrapped function would error.
+  * i.e., `regexp.Compile` and `regexp.MustCompile`
+  * If a _static_ regular exprssion string is compiled and it has a syntax error, program probably can't continue; so `regexp.MustCompile` can be used to simply panic.
+    * You can do this at global scope, so the program discloses this error and exits immediately on startup.
 
 ---
 template:green
 
-# Interlude
+# Interlude (Bear with me…)
 ## New Syntax: `defer`
 
-```
-	func main() {
-	  fileHandle := os.Open("some file")
-	  defer fileHandle.Close()
-		fmt.Println("hello, world!")
-	}
+```go
+func main() {
+  fileHandle := os.Open("some file")
+  defer fileHandle.Close()
+  fmt.Println("hello, world!")
+}
 ```
 
 * `defer` causes a function call to run when the function returns
 * Very useful for cleaning up resources, like closing file handles or network connections.
 
-* Try it: Update your "hello world" so that `main` defers a print of `goodbye`.
+* **Try it**: Update your "hello world" so that `main` defers a print of `Goodbye!`.
 
 ---
 template:blue
 
 # Recovering a `panic`
 
-```
-	func fearful() {
-		panic("you're doin me a frighten")
-		fmt.Printf("this doesn't run")
-	}
+```go
+  func main() {
+    fearful()
+    fmt.Println("this doesn't run")
+  }
+  func fearful() {
+    panic("you're doin me a frighten")
+    fmt.Println("this doesn't run")
+  }
 ```
 
 ## If the function `fearful` calls `panic`:
@@ -124,15 +128,15 @@ template:blue
 
 # Recovering a `panic`
 
-```
-	func fearful() {
-		panic("you're doin me a frighten")
-		fmt.Printf("this doesn't run")
-	}
-	func something() {
-		fearful()
-		fmt.Printf("this also doesn't run")
-	}
+```go
+  func main() {
+    fearful()
+    fmt.Println("this doesn't run")
+  }
+  func fearful() {
+    panic("you're doin me a frighten")
+    fmt.Println("this doesn't run")
+  }
 ```
 
 --
@@ -145,36 +149,17 @@ template:blue
 
 # Recovering a `panic`
 
-```
-	func fearful() {
-		panic("you're doin me a frighten")
-		fmt.Printf("this doesn't run")
-	}
-	func something() {
-		defer func() { recover(); fmt.Printf("something we did called panic()") }()
-		fearful()
-		fmt.Printf("this *still* doesn't run")
-	}
-```
-
-* While `defer`ed functions are being called, they can call `recover`, which returns the object passed to `panic`
-* If that function does not subsequently call `panic`, the `panic` ends.
-
----
-template:blue
-
-# Recovering a `panic`
-
-```
-	func fearful() {
-		defer func() { recover(); fmt.Printf("something we did called panic()") }()
-		panic("you're doin me a frighten")
-		fmt.Printf("this doesn't run")
-	}
-	func something() {
-		fearful()
-		fmt.Printf("now this runs")
-	}
+```go
+  func dontpanic() { fmt.Printf("Swallowing panic (maybe): %v", recover()) }
+  func main() {
+    defer dontpanic()
+    fearful()
+    fmt.Println("NOW, this runs")
+  }
+  func fearful() {
+    panic("you're doin me a frighten")
+    fmt.Println("this doesn't run")
+  }
 ```
 
 * While `defer`ed functions are being called, they can call `recover`, which returns the object passed to `panic`
@@ -186,50 +171,70 @@ template:blue
 # When to `error`
 
 * _Any_ time something can fail
-	* Mathematical operations that may be undefined (square root of negatives, etc.)
-	* Network calls
-	* Database lookups
+  * Mathematical operations that may be undefined (square root of negatives, etc.)
+  * Network calls
+  * Database lookups
 
 --
 * Any time you call something that returns an `error`
-	* Add some context with `fmt.Errorf`
+  * Add some context with `fmt.Errorf`
+
+```go
+  func convert(input string) (string, error) {
+    var result, err = doSomething(input)
+    if err != nil {
+      return "", fmt.Errorf("converting %s: %s", input, err)
+    }
+    return result, nil
+  }
+  func main() {
+    conversion, err := convert(os.Args[1])
+    if err != nil { panic(err) }
+    fmt.Println(conversion)
+  }
 ```
-	func convert(foo string) (string, error) {
-		var bar, err = doSomething(foo)
-		if err != nil {
-			return "", fmt.Errorf("converting %s: %s", foo, err)
-		}
-		return bar, nil
-	}
-	func main() {
-		conversion, err := convert(os.Args[1])
-		if err != nil { panic(err) }
-		fmt.Print(conversion)
-	}
+
+---
+template: blue
+
+# New Syntax
+
+For an `if` or `switch` statement, you can declare a variable and check its
+value at the same time by separating these two statement with a semi-colon,
+like this:
+
+```go
+if intValue := someFunction(); intValue != 1 {
+ // `intValue` can be used here
+}
+
+if err := maybeFunction(); err != nil {
+  // Handle the non-nil error `err`
+}
+
+// neither `intValue` nor `err` exist here, outside the `if`
+
+select option := someOption; option {
+  case "a": …
+  case "b": …
+  default: …
+}
 ```
 
 ---
 template:blue
 
-# Let's do it
+## Let's do it
 
 ### Outline
-1. Add a `validate` function that accepts one argument- the user's name as a `string`, and that returns one value, an `error`.
-2. Check if the name exactly matches yours; if it _doesn't_, return an error (created using `errors.New`) describing the problem in English. (If the name _does_ match, return `nil` to indicate "no error")
-3. In your `main` function, call validate after the user provides their name, and print the error message instead of a greeting, if the error is not nil.
+1. Add a `validate` function that accepts one argument, the user's name (a `string`), and that returns one value, an `error`.
+2. If the name exactly matches yours, return `nil`. if it _doesn't match_, return an error (created using `errors.New`) describing the problem in English.
+3. Use `validate` in your main function to validate the name, or print an error.
 
-### New Syntax
+### Hints
 
-For an `if` statement, you can declare a variable and check its value at the
-same time by separating these two statement with a semi-colon, like this:
-
-```go
-if intValue := someFunction(); intValue != 1 {
-   // `intValue` can be used here
-}
-
-// `intValue` does not exist outside the `if`
-```
+* Read about basic language features at the "ref-spec": `https://golang.org/ref/spec`
+* Read about standard libraries like `errors` via `golang.org/pkg/…`: `https://golang.org/pkg/errors`
 
 ---
 template:blue
@@ -240,22 +245,22 @@ template:blue
 package main
 
 import (
-	"fmt"
+  "fmt"
 )
 
 func validate(name string) error {
-	if name != "patrick" { return errors.New("you are not Patrick!"); }
-	return nil
+  if name != "patrick" { return errors.New("you are not Patrick!"); }
+  return nil
 }
 
 func main() {
-	var name string
-	fmt.Print(“What is your name? “)
-	fmt.Scanln(&name)
-	if err := validate(name); err != nil {
-		fmt.Println("Uh, oh:", err)
-	} else {
-		fmt.Println("Hello,", name, “!”)
-	}
+  var name string
+  fmt.Print(“What is your name? “)
+  fmt.Scanln(&name)
+  if err := validate(name); err != nil {
+    fmt.Println("Uh, oh:", err)
+    return
+  }
+  fmt.Println("Hello,", name, “!”)
 }
 ```

@@ -45,12 +45,254 @@ template: title
 
 ## Type System
 
-* Simple Types
-* Collections (maps, slices, arrays)
-* Functions
-* User-defined Types
+Simple Types
+
+Collections (maps, slices, arrays)
+
+Functions as Objects
+
+User-defined Types
 
 ---
 template:blue
 
-Incomplete; see https://docs.google.com/presentation/d/102npjmlYOHoPOFDYide0MaqyMEFyO9alpHgETSFmUWE/edit?usp=sharing
+# Simple Types
+
+* Boolean (`bool`, `true` or `false`)
+* Numeric (`int`, `uint`, `float`)
+  * `int8`, `int16`, `int32` (aka `rune`), `int64`
+  * `uint8` (aka `byte`), …
+  * `float32`, `float64`
+  * `complex64`, `complex128`
+* String (`string`)
+
+---
+template:blue
+
+# Conversions
+
+## Implicit
+
+```go
+  // This does not compile!
+  var example int8 = 1
+  var exampleB int16 = example
+  // cannot use example (type int8) as type int16 in assignment
+```
+
+## Explicit conversions look like function calls
+
+```go
+  var example int8 = 1
+  var exampleB int16 = int16(example)
+```
+
+### We'll see more in User-Defined Types
+
+---
+template:blue
+
+# Strings
+
+## Constants
+
+```go
+  "string" // standard form
+  `string` // *every byte* from first ` to until the next `
+```
+
+## Operations
+
+```go
+  s[0] = 'H' // NO! Immutable! Does not work.
+
+  "a" + "b" == "ab" // Concatenation
+  len("ohai") == 4  // Length
+  "ohai"[0] == 'o'  // Subscripting; 'o' is a `rune`
+```
+
+* Other more complex operations are in the `strings` package
+
+---
+template:blue
+
+# Collections: The Slice
+
+* For any type T, "slice Of Ts" is spelled `[]T`
+* `[][]string` is pronounced "slice of slices of strings"
+
+## Constants
+
+```go
+  var ints []int = []int{1, 2, 3}
+  var floats = []float32{1.5, 2.5, 3.5}
+  strings := []string{"one", "two", "three"}
+```
+
+## Operations
+
+```go
+  ints[0] = 2            // Sub-element assignment
+  ints = append(ints, 4) // Appending items to the end. This _might_ create a copy of the data.
+  len(floats) == 3       // Length
+  strings[0] == "one"    // Subscripting 
+```
+
+---
+template:blue
+
+# Collections: The Slice
+
+* Slices are like pointers- the zero value of a slice variable is nil:
+  ```go
+    var zero []int
+    zero == nil // true!
+  ```
+
+* Assigning a slice creates a reference to the same data:
+  ```go
+  a := []int{1,2,3} ← a is a new slice
+  b := a            ← b is a reference to a
+  a[0] = 2          ← we change a[0]
+  b[0] == 2         ← b[0] is changed as well
+  ```
+
+---
+template:blue
+
+# Collections: The Slice: Internals
+
+* Slices have three fields, internally:
+    * A value indicating the length -- how much of the array we're using -- `len(s)`
+    * A pointer to the underlying array -- implying the first element
+    * A value indicating the capacity -- the total length of the array -- `cap(s)`
+
+```
+         .---------.----------.-----.
+  Slice: | len = 8 | cap = 12 | ptr |
+         '---------'----------'-----'
+             ___________________/        .- len - 1      . cap - 1
+            /                           /               /
+           v                           v               v
+         .---.---.---.---.---.---.---.---.---.---.---.---.
+  Array: | 0 | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
+         '---'---'---'---'---'---'---'---'---'---'---'---'
+           0   1   2   3   4   5   6   7   8   9   10  11
+```
+
+---
+template:blue
+
+# Collections: The Slice: Append
+
+* `append` increases the length, as long as the length is less than the capacity
+    * Actually, `append` makes a new _slice_, with a pointer to the same data, if there's room. That's why we assign the result of `append` to the original slice.
+    * If there isn't room, `append` copies the entire array.
+
+```
+  Before:
+         .---------.----------.-----.
+  Slice: | len = 8 | cap = 12 | ptr |
+         '---------'----------'-----'
+         .---.---.---.---.---.---.---.---.---.---.---.---.
+  Array: | 0 | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
+         '---'---'---'---'---'---'---'---'---'---'---'---'
+
+  After s = append(s,9)
+         .---------.----------.-----.
+  Slice: | len = 9 | cap = 12 | ptr |
+         '---------'----------'-----'
+         .---.---.---.---.---.---.---.---.---.---.---.---.
+  Array: | 0 | 1 | 1 | 3 | 1 | 2 | 4 | 5 | 9 |   |   |   |
+         '---'---'---'---'---'---'---'---'---'---'---'---'
+```
+
+???
+discuss performance implications of naive append
+
+---
+template:blue
+
+# Collections: The Slice: Re-slice
+
+* We can re-slice, to move the slice around the underlying array: `s = s[low:high]`
+    * `0 <= low < len(s)`; default is `0`
+    * `low < high < len(s)`; default is `len(s)`
+    * The new length is `high-low`.
+    * The new capacity is `cap - low`.
+
+```
+         .---------.----------.-----.
+  Slice: | len = 8 | cap = 12 | ptr |
+         '---------'----------'-----'
+         .---.---.---.---.---.---.---.---.---.---.---.---.
+  Array: | 0 | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
+         '---'---'---'---'---'---'---'---'---'---'---'---'
+
+  s[1:8]
+         .---------.----------.-----.
+  Slice: | len = 7 | cap = 11 | ptr |
+         '---------'----------'-----'
+         .---.---.---.---.---.---.---.---.---.---.---.
+  Array: | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
+         '---'---'---'---'---'---'---'---'---'---'---'
+```
+
+???
+notice that the capacity has decreased. we can't get capacity back.
+
+---
+template:blue
+
+# Collections: The Slice: Re-slice
+
+```
+         .---------.----------.-----.
+  Slice: | len = 8 | cap = 12 | ptr |
+         '---------'----------'-----'
+         .---.---.---.---.---.---.---.---.---.---.---.---.
+  Array: | 0 | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
+         '---'---'---'---'---'---'---'---'---'---'---'---'
+
+  s[0:3]
+         .---------.----------.-----.
+  Slice: | len = 3 | cap = 12 | ptr |
+         '---------'----------'-----'
+         .---.---.---.---.---.---.---.---.---.---.---.---.
+  Array: | 0 | 1 | 1 |   |   |   |   |   |   |   |   |   |
+         '---'---'---'---'---'---'---'---'---'---'---'---'
+```
+
+???
+since we don't change `low`, capacity doesn't decrease, but our data is "gone".
+
+---
+template:blue
+
+# Do It: Implement Common Operations on Slices
+
+* `func Push(in []int, item int) (out []int) {…}`
+    * Push treats a slice as a stack, and pushes an item on to it. It returns the new stack as a slice:
+* `func Top(in []int) (top int) {…}`
+    * Top treats a slice as a stack, and returns the top item (the most recently pushed). It panics if there's no top item.
+* `func Pop(in []int) (out []int) {…}`
+    * Pop treats a slice as a stack, and removes the top item. It panics if there's no top item.
+* Bonus: Implement PopAndTop, which does both of the previous two: `func PopAndTop(in []int) (top int, out[]int) {…}`
+* Bonus bonus: Rewrite the previous three to return an error instead of panicing
+
+---
+template:blue
+
+# Project: Bring it all together
+
+* No cheat sheet this time; use:
+    * the ref-spec:  `https://golang.org/ref/spec`
+    * and pkg docs:  `https://golang.org/pkg/strconv`
+* Let’s create a basic postfix calculator (plus, minus, multiply, divide):
+    * A function that accepts a slice of strings (`[]string`), where each element is either an operand (a number) or an operator
+    * The function should iterate over the slice:
+        * use strconv.Atoi to determine if the element is a number or not
+        * Numbers are pushed onto a stack (we built one, remember?)
+        * Operators pop two numbers off of the stack, perform their operation, and push the result onto the stack
+        * When there are no more elements in the input, the function should return the top item on the stack- the result.
+    * Ex: `calculate([]string{"1, "2", "+", "4", "*"})` should return `12`.
