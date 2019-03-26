@@ -119,13 +119,13 @@ template:blue
 # Collections: The Slice
 
 * For any type T, "slice Of Ts" is spelled `[]T`
+    * "N-length Array of Ts" is spelled `[N]T`
 * `[][]string` is pronounced "slice of slices of strings"
 
 ## Constants
 
 ```go
   var ints []int = []int{1, 2, 3}
-  var floats = []float32{1.5, 2.5, 3.5}
   strings := []string{"one", "two", "three"}
 ```
 
@@ -134,9 +134,12 @@ template:blue
 ```go
   ints[0] = 2            // Sub-element assignment
   ints = append(ints, 4) // Appending items to the end. This _might_ create a copy of the data.
-  len(floats) == 3       // Length
+  len(strings) == 3       // Length
   strings[0] == "one"    // Subscripting 
 ```
+
+???
+...but we rarely use arrays directly. explain they're fixed length, can't be appended.
 
 ---
 template:blue
@@ -240,6 +243,7 @@ template:blue
 
 ???
 notice that the capacity has decreased. we can't get capacity back.
+mention we can re-slice an array to get a slice pointing to it.
 
 ---
 template:blue
@@ -296,3 +300,102 @@ template:blue
         * Operators pop two numbers off of the stack, perform their operation, and push the result onto the stack
         * When there are no more elements in the input, the function should return the top item on the stack- the result.
     * Ex: `calculate([]string{"1, "2", "+", "4", "*"})` should return `12`.
+
+---
+template:title
+
+# Break
+
+Relax, maybe meditate.
+
+Have some coffee.
+
+Both might be counterproductive, though.
+
+---
+template:blue
+
+# Maps
+
+* Easier than slices somehow
+* Also pointer-like, but none of these re-slice shenanigans
+* For two types K and V, `mapping of Ks to Vs` is spelled `map[K]V`
+
+```go
+  numerals := map[int]string{ 0: "zero", 1: "one", 2: "two" }
+  numerals_l10n := map[int]map[string]string{
+    0: map[string]string{ "english": "zero", "latin": "nulla" },
+  }
+  numerals[0] == "zero"
+  numerals[99] == ""
+
+  numerals_l10n[0]["english"] == "zero"
+  numerals_l10n[0]["spanish"] == ""
+  numerals_l10n[99] == nil
+  numerals_l10n[99]["english"] ← panic!
+```
+
+---
+template:blue
+
+# Functions as Objects
+
+* Almost exactily what you expect
+* Old hat: `func foo(a int, b string) (float32, error) {…}`
+* Foo is just a constant declaration of a function! Its type is `func(a int, b string) (float32, error)`:
+
+```go
+  var fooObj func(a int, b string) (float32, error) = foo
+  fooObj(1, "bar") == foo(1, "bar")
+```
+
+* We have anonymous functions, too:
+
+```go
+  anonymous := func(int a)(error){
+    if a == 0 { 
+      return errors.New("no zeroes allowed!") 
+    }
+    return nil
+  }
+  fmt.Println(anonymous(1)) // prints `nil`
+  fmt.Println(anonymous(0)) // prints "no zeroes allowed!"
+```
+
+---
+template:blue
+
+# Side note: Closures
+
+* Simply: Functions can access variables from the scope in which they're defined
+
+```go
+  func main() {
+    a := 1
+    b := "two"
+
+    // Create _and execute_ an anonymous function
+    func() {
+      fmt.Println(a) // prints 1
+      fmt.Println(b) // prints "two"
+    }()
+  }
+```
+
+---
+template:blue
+
+# Do it: Embrace and Extend
+
+* Take the calculator from before, and add in the ideas of maps and function types.
+
+* Instead of a static set of operators, have a mapping of operator strings to functions that execute them.
+
+* Hint: `map[string]func(opA, opB int)(int)`
+
+---
+template:title
+
+# Thanks!
+
+## Onward, to Chapter 2
