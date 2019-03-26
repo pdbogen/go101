@@ -273,6 +273,30 @@ since we don't change `low`, capacity doesn't decrease, but our data is "gone".
 ---
 template:blue
 
+# Collections: The Slice: Iterating
+
+* C-style, `for i := 0; i < len(s); i++` is alright, but is a lot of boilerplate.
+* Go gives us the `range` operator.
+
+```go
+for i := range s {
+  // do something with s[i]
+}
+
+for i, v := range s {
+  // s[i] == v, even cleaner
+}
+
+for _, v := range s {
+  // if we don't use the index, we can skip saving it to a variable
+}
+```
+
+* Bonus: syntax is identical for maps (coming soon to a slide near you!)
+
+---
+template:blue
+
 # Do It: Implement Common Operations on Slices
 
 * `func Push(in []int, item int) (out []int) {…}`
@@ -299,7 +323,7 @@ template:blue
         * Numbers are pushed onto a stack (we built one, remember?)
         * Operators pop two numbers off of the stack, perform their operation, and push the result onto the stack
         * When there are no more elements in the input, the function should return the top item on the stack- the result.
-    * Ex: `calculate([]string{"1, "2", "+", "4", "*"})` should return `12`.
+    * Ex: `calculate([]string{"1", "2", "+", "4", "*"})` should return `12`.
 
 ---
 template:title
@@ -332,7 +356,26 @@ template:blue
   numerals_l10n[0]["english"] == "zero"
   numerals_l10n[0]["spanish"] == ""
   numerals_l10n[99] == nil
-  numerals_l10n[99]["english"] ← panic!
+  numerals_l10n[99]["english"] == "" ← _accessing_ a `nil` map is OK
+  numerals_l10n[99]["english"] = "ninety-nine" ← panic! _writing_ to a `nil` map is _not_ OK
+```
+
+---
+template:blue
+
+# Maps -- "comma-ok"
+
+* Sometimes we want to differentiate between an actually-zero value and a missing key
+* When we assign variables from a map, we can optionally assign _two_ variables.
+
+```go
+  numerals := map[int]string{ 0: "zero", 1: "one", 2: "two" }
+  n, ok := numerals[0] // ok is a bool
+  ok == true // numerals[0] _does_ exist
+
+  numerals[99] // returns ""
+  n, ok := numerals[99]
+  ok == false // numerals[99] _does not_ exist
 ```
 
 ---
@@ -347,15 +390,13 @@ template:blue
 ```go
   var fooObj func(a int, b string) (float32, error) = foo
   fooObj(1, "bar") == foo(1, "bar")
-```
 
-* We have anonymous functions, too:
+  var undefined func(int i)(error)
+  undefined == nil // the zero value of a function is `nil`
+  undefined(0) ← panic! cannot call a nil function
 
-```go
   anonymous := func(int a)(error){
-    if a == 0 { 
-      return errors.New("no zeroes allowed!") 
-    }
+    if a == 0 { return errors.New("no zeroes allowed!") }
     return nil
   }
   fmt.Println(anonymous(1)) // prints `nil`
@@ -399,3 +440,5 @@ template:title
 # Thanks!
 
 ## Onward, to Chapter 2
+
+![tada](tada.png)
