@@ -146,6 +146,25 @@ template:blue
     }
   ```
 
+???
+The sync documentation instructs is not to copy a WaitGroup, which is how we know to use pointers for it.
+
+---
+template:blue
+
+# Try it: Five Goroutines went to market
+
+* Start five goroutines, each of which prints a different message.
+* Use a `sync.WaitGroup` to ensure each goroutine gets to run before `main` exits
+* Bonus: Try a mix of regular function definitions and anonymous functions
+
+```go
+  wg := &sync.WaitGroup{} // Initialize our WaitGroup
+  wg.Add(1) // Indicate we're adding one to the counter
+  go firstPrint(wg) // firstPrint needs to call `wg.Done()`
+  wg.Wait() // Wait until the counter reaches zero
+```
+
 ---
 template:blue
 # Implicit & Explicit Yields
@@ -362,6 +381,23 @@ template:green
 
 ---
 template:green
+# Try it: Silly Queue
+
+* We can mis-use channels as a queue. Never do this! But we will.
+* In `main`, create a *buffered* channel of ints.
+* Send two numbers to it.
+* Read two numbers from it and print their sum.
+
+```go
+ch := make(chan string, 1) // a bi-directional channel of strings
+ch <- "hi"
+fmt.Println(<-ch)          // should print "hi"
+```
+
+* Note, this is unsafe, because of the buffer fills up on accident, we deadlock, because the 'send' will block.
+
+---
+template:green
 # Channel Recipes
 
 ### Blocking to Non-blocking with `select`
@@ -396,10 +432,6 @@ type Response struct {…}
 func worker(reqIn <-chan Request, resOut chan<- Response) {
   for { // loop forever
     req, ok := <-reqIn
-    if !ok {
-      close(resOut)
-      return
-    }
     /* do some kind of work to turn `req Request` into `res Response` */
     resOut <- res
   }
@@ -482,25 +514,21 @@ template:blue
   import "sync"
 
   func Printer(stringIn <-chan string, wg *sync.WaitGroup) {
-    for {
-      str, ok := <-stringIn
-      if !ok {
-        wg.Done()
-        return
-      }
-      fmt.Println(str)
+    defer wg.Done()               // On return, decrement the WaitGroup counter
+    for str := range stringIn {   // Get strings from the chan until it's closed
+      fmt.Println(str)            // Print the strings
     }
   }
   
   func main() {
-    stringCh := make(chan string)
-    wg := &sync.WaitGroup{}
-    wg.Add(1)
-    go Printer(stringCh, wg)
-    stringCh <- "hello"
-    stringCh <- "world"
-    close(stringCh)
-    wg.Wait()
+    stringCh := make(chan string) // Create a bi-directional channel
+    wg := &sync.WaitGroup{}       // Create a (pointer to) a WaitGroup
+    wg.Add(1)                     // Increment the counter by one for our one goroutine
+    go Printer(stringCh, wg)      // Start the goroutine
+    stringCh <- "hello"           // Send "hello" to the printer
+    stringCh <- "world"           // Send "world" to the printer
+    close(stringCh)               // Signal to the printer that it can terminate
+    wg.Wait()                     // Wait for the printer to finish
   }
 ```
 
