@@ -353,7 +353,7 @@ template:blue
 ```
 cd $HOME/go/src/slack-github.com/USERNAME/go101.git
 git init
-git add *.go
+git add hello
 git commit -m "hello, world"
 git remote add upstream git@slack-github.com:USERNAME/go101.git
 git push --set-upstream upstream master
