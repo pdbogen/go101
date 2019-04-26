@@ -57,7 +57,7 @@ template:blue
 ```
 $ brew install go
 $ go version
-go version go1.8.1 linux/amd64
+go version go1.12.4 linux/amd64
 ```
 
 #### Other versions are OK as long as they're 1.8 or newer.
@@ -353,7 +353,7 @@ template:blue
 ```
 cd $HOME/go/src/slack-github.com/USERNAME/go101.git
 git init
-git add hello
+git add *.go
 git commit -m "hello, world"
 git remote add upstream git@slack-github.com:USERNAME/go101.git
 git push --set-upstream upstream master
