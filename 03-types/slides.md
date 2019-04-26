@@ -324,6 +324,7 @@ template:blue
         * Operators pop two numbers off of the stack, perform their operation, and push the result onto the stack
         * When there are no more elements in the input, the function should return the top item on the stack- the result.
     * Ex: `calculate([]string{"1", "2", "+", "4", "*"})` should return `12`.
+    * Ex: `calculate([]string{"10", "2", "/"})` should return `5`
 
 ---
 template:title
