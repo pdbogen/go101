@@ -116,10 +116,68 @@ template:blue
 ---
 template:blue
 
-# Collections: The Slice
+# Collections: Arrays
+
+* For any type T and integer length N, "N-length array of T" is spelled `[N]T`
+* `N` is _part of the type_
+  * `[5]int` is a **different type** from `[3]int`: neither comparable nor assignable
+* Arrays cannot grow or shrink
+
+## Constants
+
+```go
+  var ints [3]int = [3]int{1,2,3}
+  var strings [5]string = [5]string{"one", "two", "three", "four", "five"}
+```
+
+## Operations
+
+```go
+  ints[0] = 2     // sub-element assignment
+  len(ints) == 3  // length
+```
+
+---
+template:blue
+
+# Collections: Arrays
+
+## Assignment
+
+* Assigning an array **copies** the data (this can be expensive!)
+* To pass by reference, use a Slice (stay tuned!)
+
+## Comparison
+
+* Comparing two arrays compares their contents
+
+```go
+  a := [5]int{1,2,3}
+  b := [5]int{2,2,3}
+  a == b // false!
+  b[0] = 1
+  a == b // true!
+```
+
+---
+template:blue
+
+# Collections: Arrays
+
+## Zero Value
+
+* The zero value of an array is the array with all elements set to their zero values
+
+```go
+  var a [5]int // uninitialized! value is [5]int{0,0,0,0,0}
+```
+
+---
+template:blue
+
+# Collections: Slices
 
 * For any type T, "slice Of Ts" is spelled `[]T`
-    * "N-length Array of Ts" is spelled `[N]T`
 * `[][]string` is pronounced "slice of slices of strings"
 
 ## Constants
@@ -134,17 +192,14 @@ template:blue
 ```go
   ints[0] = 2            // Sub-element assignment
   ints = append(ints, 4) // Appending items to the end. This _might_ create a copy of the data.
-  len(strings) == 3       // Length
+  len(strings) == 3      // Length
   strings[0] == "one"    // Subscripting 
 ```
-
-???
-...but we rarely use arrays directly. explain they're fixed length, can't be appended.
 
 ---
 template:blue
 
-# Collections: The Slice
+# Collections: Slices
 
 * Slices are like pointers- the zero value of a slice variable is nil:
   ```go
@@ -163,7 +218,7 @@ template:blue
 ---
 template:blue
 
-# Collections: The Slice: Internals
+# Collections: Slices: Internals
 
 * Slices have three fields, internally:
     * A value indicating the length -- how much of the array we're using -- `len(s)`
@@ -186,7 +241,7 @@ template:blue
 ---
 template:blue
 
-# Collections: The Slice: Append
+# Collections: Slices: Append
 
 * `append` increases the length, as long as the length is less than the capacity
     * Actually, `append` makes a new _slice_, with a pointer to the same data, if there's room. That's why we assign the result of `append` to the original slice.
@@ -216,29 +271,42 @@ discuss performance implications of naive append
 ---
 template:blue
 
-# Collections: The Slice: Re-slice
+# Collections: Slice expressions
 
-* We can re-slice, to move the slice around the underlying array: `s = s[low:high]`
-    * `0 <= low < len(s)`; default is `0`
-    * `low < high < len(s)`; default is `len(s)`
-    * The new length is `high-low`.
+* The slice expression `s[low:high]` creates slices from arrays or from other slices
+    * `low` ranges from `0` to `len(s)` inclusive; `0` if blank
+    * `high` ranges from `low` to `len(s)` inclusive; `len(s)` if blank
+    * The new length is `high - low`. _(tip: work back from the length you want)_
     * The new capacity is `cap - low`.
+
+* Recipes:
+  * `s[:]` creates a new slice object from an existing array or slice- shares data!
+      * same as `s[0:]` or `s[:len(s)]` or `s[0:len(s)]`
+  * `s[1:]` creates a slice with the first item removed
+  * `s[:len(s)-1]` creates a slice with the last item removed
+
+---
+template:blue
+
+# Collections: Slice expressions
+
+* `s[1:8]` has `low` higher than `0`, so length _and_ capacity decrease
 
 ```
          .---------.----------.-----.
   Slice: | len = 8 | cap = 12 | ptr |
-         '---------'----------'-----'
-         .---.---.---.---.---.---.---.---.---.---.---.---.
+         '---------'----------'--+--'
+           .--------------------/
+           v
   Array: | 0 | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
-         '---'---'---'---'---'---'---'---'---'---'---'---'
 
   s[1:8]
          .---------.----------.-----.
   Slice: | len = 7 | cap = 11 | ptr |
-         '---------'----------'-----'
-         .---.---.---.---.---.---.---.---.---.---.---.
-  Array: | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
-         '---'---'---'---'---'---'---'---'---'---'---'
+         '---------'----------'--+--'
+               .----------------/
+               v
+  Array: | ? | 1 | 1 | 3 | 1 | 2 | 4 | 5 |   |   |   |   |
 ```
 
 ???
@@ -248,7 +316,9 @@ mention we can re-slice an array to get a slice pointing to it.
 ---
 template:blue
 
-# Collections: The Slice: Re-slice
+# Collections: Slice expressions
+
+* `s[0:3]` has `high` less than `len(s)` reduces length but not capacity, but the data is gone
 
 ```
          .---------.----------.-----.
@@ -273,26 +343,28 @@ since we don't change `low`, capacity doesn't decrease, but our data is "gone".
 ---
 template:blue
 
-# Collections: The Slice: Iterating
+# Collections: Iterating: `range`
 
-* C-style, `for i := 0; i < len(s); i++` is alright, but is a lot of boilerplate.
-* Go gives us the `range` operator.
-
+* By key or index
 ```go
+// i is each index (or key, for maps)
 for i := range s {
-  // do something with s[i]
-}
-
-for i, v := range s {
-  // s[i] == v, even cleaner
-}
-
-for _, v := range s {
-  // if we don't use the index, we can skip saving it to a variable
 }
 ```
 
-* Bonus: syntax is identical for maps (coming soon to a slide near you!)
+* By key or index _and_ value
+```go
+// each pair of index/value (or key/value, for maps)
+for i, v := range s {
+}
+```
+
+* By value
+```go
+// discard index/key, iterate over each value
+for _, v := range s {
+}
+```
 
 ---
 template:blue
@@ -386,7 +458,7 @@ template:blue
 
 * Almost exactily what you expect
 * Old hat: `func foo(a int, b string) (float32, error) {…}`
-* Foo is just a constant declaration of a function! Its type is `func(a int, b string) (float32, error)`:
+* `foo` is just a constant declaration of a function! Its type is `func(a int, b string) (float32, error)`:
 
 ```go
   var fooObj func(a int, b string) (float32, error) = foo
@@ -394,7 +466,7 @@ template:blue
 
   var undefined func(int i)(error)
   undefined == nil // the zero value of a function is `nil`
-  undefined(0) ← panic! cannot call a nil function
+  undefined(0)     // panic! cannot call a nil function
 
   anonymous := func(int a)(error){
     if a == 0 { return errors.New("no zeroes allowed!") }
@@ -431,7 +503,9 @@ template:blue
 
 * Take the calculator from before, and add in the ideas of maps and function types.
 
-* Instead of a static set of operators, have a mapping of operator strings to functions that execute them.
+* Currently, you probably have a list of operations (`result = opA + opB`)
+* Replace that list with a map, which maps the operand, a string `"+"`, to a function with type `func(int,int)(int)`
+* Your result should have no `switch` or nested `if-else` for dispatching to operators!
 
 * Hint: `map[string]func(opA, opB int)(int)`
 
