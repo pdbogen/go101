@@ -1,0 +1,36 @@
+digraph {
+  rankdir=LR;
+  "`func`" -> NoReceiver;
+  "`func`" -> Receiver;
+  NoReceiver -> FunctionName -> ParamOpen;
+  Receiver -> FunctionName;
+
+  Result -> BodyOpen -> FunctionBody -> BodyClose;
+  BodyOpen[label="{"];
+  BodyClose [label="}"];
+
+  subgraph cluster_receiver {
+    label="Receiver";
+    NoReceiver [label=""];
+    Receiver [label="(receiverName ReceiverType)"];
+  }
+  subgraph cluster_signature {
+    label="Signature";
+    ParamClose -> Result;
+    subgraph cluster_parameters {
+      label="Parameters";
+      ParamOpen -> ParameterList -> ParamClose;
+      ParamOpen [label="("];
+      ParamClose [label=")"];
+      subgraph cluster_parameter_list {
+        label="ParameterList";
+        subgraph cluster_parameter_dec {
+          label="ParameterDecl";
+          "Identifier" -> "[...]" -> "Type" -> "[,]";
+        }
+      }
+      ManyParameterDecl [label="..."];
+    }
+  }
+}
+

@@ -43,75 +43,7 @@ template: title
 
 # Go 101
 
-## Type System
-
-Simple Types
-
-Collections (maps, slices, arrays)
-
-Functions as Objects
-
-User-defined Types
-
----
-template:blue
-
-# Simple Types
-
-* Boolean (`bool`, `true` or `false`)
-* Numeric (`int`, `uint`, `float`)
-  * `int8`, `int16`, `int32` (aka `rune`), `int64`
-  * `uint8` (aka `byte`), …
-  * `float32`, `float64`
-  * `complex64`, `complex128`
-* String (`string`)
-
----
-template:blue
-
-# Conversions
-
-## Implicit
-
-```go
-  // This does not compile!
-  var example int8 = 1
-  var exampleB int16 = example
-  // cannot use example (type int8) as type int16 in assignment
-```
-
-## Explicit conversions look like function calls
-
-```go
-  var example int8 = 1
-  var exampleB int16 = int16(example)
-```
-
-### We'll see more in User-Defined Types
-
----
-template:blue
-
-# Strings
-
-## Constants
-
-```go
-  "string" // standard form
-  `string` // *every byte* from first ` to until the next `
-```
-
-## Operations
-
-```go
-  s[0] = 'H' // NO! Immutable! Does not work.
-
-  "a" + "b" == "ab" // Concatenation
-  len("ohai") == 4  // Length
-  "ohai"[0] == 'o'  // Subscripting; 'o' is a `rune`
-```
-
-* Other more complex operations are in the `strings` package
+## Collections
 
 ---
 template:blue
@@ -399,17 +331,6 @@ template:blue
     * Ex: `calculate([]string{"10", "2", "/"})` should return `5`
 
 ---
-template:title
-
-# Break
-
-Relax, maybe meditate.
-
-Have some coffee.
-
-Both might be counterproductive, though.
-
----
 template:blue
 
 # Maps
@@ -450,70 +371,3 @@ template:blue
   n, ok := numerals[99]
   ok == false // numerals[99] _does not_ exist
 ```
-
----
-template:blue
-
-# Functions as Objects
-
-* Almost exactily what you expect
-* Old hat: `func foo(a int, b string) (float32, error) {…}`
-* `foo` is just a constant declaration of a function! Its type is `func(a int, b string) (float32, error)`:
-
-```go
-  var fooObj func(a int, b string) (float32, error) = foo
-  fooObj(1, "bar") == foo(1, "bar")
-
-  var undefined func(int i)(error)
-  undefined == nil // the zero value of a function is `nil`
-  undefined(0)     // panic! cannot call a nil function
-
-  anonymous := func(int a)(error){
-    if a == 0 { return errors.New("no zeroes allowed!") }
-    return nil
-  }
-  fmt.Println(anonymous(1)) // prints `nil`
-  fmt.Println(anonymous(0)) // prints "no zeroes allowed!"
-```
-
----
-template:blue
-
-# Side note: Closures
-
-* Simply: Functions can access variables from the scope in which they're defined
-
-```go
-  func main() {
-    a := 1
-    b := "two"
-
-    // Create _and execute_ an anonymous function
-    func() {
-      fmt.Println(a) // prints 1
-      fmt.Println(b) // prints "two"
-    }()
-  }
-```
-
----
-template:blue
-
-# Do it: Embrace and Extend
-
-* Take the calculator from before, and add in the ideas of maps and function types.
-
-* Currently, you probably have a list of operations (`result = opA + opB`)
-* Replace that list with a map, which maps the operand, a string `"+"`, to a function with type `func(int,int)(int)`
-* Your result should have no `switch` or nested `if-else` for dispatching to operators!
-
-* Hint: `map[string]func(opA, opB int)(int)`
-
----
-template:title
-
-# Thanks!
-
-## Onward, to Chapter 2
-
-![tada](tada.png)

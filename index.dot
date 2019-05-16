@@ -1,0 +1,12 @@
+digraph {
+  node [style=filled, fillcolor="#EECCCC"];
+  "Basic Syntax" [href="./basics", fillcolor="#CCEECC"];
+  "Basic Types" [href="./types", fillcolor="#CCEECC"];
+  "Error Handling" [href="./errors", fillcolor="#CCEECC"];
+  "Functions" [href="./functions", fillcolor="#CCEECC"];
+  "Basic Syntax" -> "Basic Types" -> "Error Handling";
+  "Error Handling" -> "Functions" -> "Concurrency" -> "Channels";
+  "Error Handling" -> "Collections" -> "Channels";
+  "Error Handling" -> "Structs" -> "Interfaces" -> "Packages"
+  "Functions" -> "Interfaces";
+}
