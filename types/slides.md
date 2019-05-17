@@ -61,6 +61,29 @@ template:blue
   * `float32`, `float64`
   * `complex64`, `complex128`
 * String (`string`)
+* Errors (`error`)
+
+---
+template:blue
+
+# "Different Types" and Conversions
+
+* `int8` and `int16` are "different types"
+* As different as `string` and `float32`
+* We can convert:
+  * amongst numeric types
+  * integer types to strings (special case, converts to unicode; doesn't render integer)
+  * string to/from byte slices or rune slices
+
+```go
+  var i8 int8 = 65
+  var i16 int16 = 16384
+
+  i8 == i16       // compiler error!
+  i8 == int8(i16) // compiles, but integer overflow 
+
+  s := string(i8) // string is `"A"`, because integer 65 is Unicode A
+```
 
 ---
 template:blue
@@ -112,24 +135,29 @@ template:blue
 ---
 template:blue
 
----
-template:blue
+# Errors
 
-# Do it: Embrace and Extend
+* Errors are `interfaces`, which we'll cover later.
 
-* Take the calculator from before, and add in the ideas of maps and function types.
+```go
+  import (
+    "errors"
+    "fmt
+  )
 
-* Currently, you probably have a list of operations (`result = opA + opB`)
-* Replace that list with a map, which maps the operand, a string `"+"`, to a function with type `func(int,int)(int)`
-* Your result should have no `switch` or nested `if-else` for dispatching to operators!
+  // Many functions return an error
+  func GetStringCouldFail() (string,error) {
+    // Return a new "constant" error
+    return errors.New("this function is not implemented!")
+  }
 
-* Hint: `map[string]func(opA, opB int)(int)`
+  output, err := GetStringCouldFail()
+  if err != nil { // errors are `nil` when no error occurred
+    fmt.Printf("getting string failed: %s", err)
+  }
+```
 
 ---
 template:title
-
-# Thanks!
-
-## Onward, to Chapter 2
 
 ![tada](tada.png)
