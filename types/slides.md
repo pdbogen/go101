@@ -142,7 +142,7 @@ template:blue
 ```go
   import (
     "errors"
-    "fmt
+    "fmt"
   )
 
   // Many functions return an error
