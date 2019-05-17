@@ -6,6 +6,7 @@ digraph {
   "Functions" [href="./functions", fillcolor="#CCEECC"];
   "Structs" [href="./structs", fillcolor="#CCEECC"];
   "Collections" [href="./collections", fillcolor="#CCEECC"];
+  "Concurrency" [href="./concurrency", fillcolor="#CCEECC"];
   "Basic Syntax" -> "Basic Types" -> "Error Handling";
   "Error Handling" -> "Functions" -> "Concurrency" -> "Channels";
   "Error Handling" -> "Collections" -> "Channels";
