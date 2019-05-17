@@ -5,9 +5,11 @@ digraph {
   "Error Handling" [href="./errors", fillcolor="#CCEECC"];
   "Functions" [href="./functions", fillcolor="#CCEECC"];
   "Structs" [href="./structs", fillcolor="#CCEECC"];
+  "Collections" [href="./collections", fillcolor="#CCEECC"];
   "Basic Syntax" -> "Basic Types" -> "Error Handling";
   "Error Handling" -> "Functions" -> "Concurrency" -> "Channels";
   "Error Handling" -> "Collections" -> "Channels";
   "Error Handling" -> "Structs" -> "Interfaces" -> "Packages"
   "Functions" -> "Interfaces";
+  "Collections" -> "Structs";
 }
