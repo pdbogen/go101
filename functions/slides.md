@@ -228,7 +228,7 @@ template:green
 ```go
   func Plus(a, b int) (int) { … }
   func Minus(a, b int) (int) { … }
-  func Logged(func(int,int)(int)) func(int,int)(int) { … }
+  func Logged(f func(int,int)(int)) func(int,int)(int) { … }
 
   func main() {
     plus := Logged(Plus)
