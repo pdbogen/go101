@@ -430,8 +430,7 @@ type Request struct {…}
 type Response struct {…}
 
 func worker(reqIn <-chan Request, resOut chan<- Response) {
-  for { // loop forever
-    req, ok := <-reqIn
+  for req := range reqIn { // loop as long as reqIn is not closed
     /* do some kind of work to turn `req Request` into `res Response` */
     resOut <- res
   }
