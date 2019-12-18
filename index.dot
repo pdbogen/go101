@@ -4,9 +4,12 @@ digraph {
   "Basic Types" [href="./types", fillcolor="#CCEECC"];
   "Error Handling" [href="./errors", fillcolor="#CCEECC"];
   "Functions" [href="./functions", fillcolor="#CCEECC"];
-  "Structs" [href="./structs", fillcolor="#CCEECC"];
-  "Collections" [href="./collections", fillcolor="#CCEECC"];
-  "Concurrency" [href="./concurrency", fillcolor="#CCEECC"];
+  "Structs" [label="Structs\n(user-defined\ncompound types)", href="./structs", fillcolor="#CCEECC"];
+  "Collections" [label="Collections\n(arrays, maps, slices)", href="./collections", fillcolor="#CCEECC"];
+  "Concurrency" [label="Concurrency\n(goroutines &\nsynchronization)", href="./concurrency", fillcolor="#CCEECC"];
+  "Interfaces" [label="Interfaces\n(Polymorphism)"];
+  "Channels" [label="Channels\n(Safe concurrent\ncommunication)"];
+  "Packages" [label="Packages\n(The Go ecosystem)"];
   "Basic Syntax" -> "Basic Types" -> "Error Handling";
   "Error Handling" -> "Functions" -> "Concurrency" -> "Channels";
   "Error Handling" -> "Collections" -> "Channels";

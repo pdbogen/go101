@@ -9,5 +9,6 @@ import (
 
 func main() {
 	http.Handle("/", http.FileServer(http.Dir(".")))
+  log.Print("Listening on :8000")
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }
